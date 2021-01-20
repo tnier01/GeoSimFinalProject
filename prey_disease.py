@@ -7,36 +7,50 @@ class Fire(DynamicModel):
     setclone(200, 200,  1, 0, 0)
 
   def initial(self):
-      prey = uniform(1) < 0.1
+      prey = uniform(1) < 0.05
       predator = uniform(1) < 0.1
+      infected = uniform(1) < 0.05
 
-      self.prey = ifthenelse(prey, scalar(1.0), 0.0)
       self.predator = ifthenelse(predator, scalar(1.0), 0.0)
+      self.prey = ifthenelse(prey, scalar(1.0), ifthenelse(infected, scalar(2.0), 0.0))
 
-      self.report(self.prey, 'plot/prey')
-      self.report(self.predator, 'plot/predator')
+      self.report(self.prey, 'plot/prey_2')
+      self.report(self.predator, 'plot/predator_2')
 
   def dynamic(self):
       prey = pcreq(self.prey, 1)
 
       predator = pcreq(self.predator, 1)
 
-      hunted = pcrand(prey, predator)
+      infected = pcreq(self.prey, 2)
 
-      neighbours = window4total(scalar(pcrand(prey, pcrnot(hunted))))
+      infected_neighbour = window4total(scalar(infected)) > 0
+
+      hunted = pcrand(pcror(infected, prey), predator)
+
+
+
+
+      infected_not_hunted = pcror(pcrand(prey, infected_neighbour), pcrand(infected, pcrnot(hunted)))
+
+      neighbours = window4total(scalar(pcrand(pcrnot(infected_neighbour), pcrand(prey, pcrnot(hunted)))))
 
       alive_neighbour = pcror(neighbours > 0, pcrand(prey, pcrnot(hunted)))
+
+
 
       hunted_neighbour = window4total(scalar(hunted))
 
       hunted_new = pcror(hunted_neighbour > 0, hunted)
-      
-      self.prey = alive_neighbour
+
+
+
+      self.prey = ifthenelse(infected_not_hunted, scalar(2.0), ifthenelse(alive_neighbour, scalar(1.0), 0.0))
       
       self.predator = hunted_new
       
-      self.report(self.prey, 'plot/prey')
-      self.report(self.predator, 'plot/predator')
+      self.report(self.prey, 'plot/prey_2')
+      self.report(self.predator, 'plot/pred_2')
 
       # burningNeighbours = window4total(scalar(self.fire))
       # neighbourBurns = burningNeighbours > 0

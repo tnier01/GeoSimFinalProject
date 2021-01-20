@@ -8,20 +8,23 @@ class Fire(DynamicModel):
 
   def initial(self):
       prey = uniform(1) < 0.1
-      predator = uniform(1) < 0.1
+      predator = uniform(1) < 0.05
+      infected = uniform(1) < 0.05
 
       self.prey = ifthenelse(prey, scalar(1.0), 0.0)
-      self.predator = ifthenelse(predator, scalar(1.0), 0.0)
+      self.predator = ifthenelse(predator, scalar(1.0), ifthenelse(infected, scalar(2.0), 0.0))
 
-      self.report(self.prey, 'plot/prey')
-      self.report(self.predator, 'plot/predator')
+      self.report(self.prey, 'plot/prey_1')
+      self.report(self.predator, 'plot/predator_1')
 
   def dynamic(self):
       prey = pcreq(self.prey, 1)
 
       predator = pcreq(self.predator, 1)
 
-      hunted = pcrand(prey, predator)
+      infected = pcreq(self.predator, 2)
+
+      hunted = pcrand(prey, pcror(predator, infected))
 
       neighbours = window4total(scalar(pcrand(prey, pcrnot(hunted))))
 
@@ -29,14 +32,22 @@ class Fire(DynamicModel):
 
       hunted_neighbour = window4total(scalar(hunted))
 
-      hunted_new = pcror(hunted_neighbour > 0, hunted)
+      infected_neighbour = window4total(scalar(infected))
+
+      sound_hunt_predator = pcrand(hunted, pcrnot(pcror(infected_neighbour > 0, infected)))
+      sound_hunt_neighbour = window4total(scalar(sound_hunt_predator)) > 0
+
+      new_sound_predator = pcror(sound_hunt_predator, sound_hunt_neighbour)
+          # = pcror(pcrand(hunted_neighbour > 0, pcrnot(infected_neighbour > 0)), pcrand(hunted, pcrnot(infected_neighbour > 0)))
+
+      new_infected_predator = pcrand(hunted, pcror(infected, infected_neighbour > 0))
       
       self.prey = alive_neighbour
       
-      self.predator = hunted_new
+      self.predator = ifthenelse(new_infected_predator, scalar(2.0), ifthenelse(new_sound_predator, scalar(1.0), 0.0))
       
-      self.report(self.prey, 'plot/prey')
-      self.report(self.predator, 'plot/predator')
+      self.report(self.prey, 'plot/prey1')
+      self.report(self.predator, 'plot/pred_1')
 
       # burningNeighbours = window4total(scalar(self.fire))
       # neighbourBurns = burningNeighbours > 0
