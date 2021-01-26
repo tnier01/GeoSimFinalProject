@@ -46,8 +46,8 @@ class Fire(DynamicModel):
       
       self.predator = ifthenelse(new_infected_predator, scalar(2.0), ifthenelse(new_sound_predator, scalar(1.0), 0.0))
       
-      self.report(self.prey, 'plot/prey1')
-      self.report(self.predator, 'plot/pred_1')
+      self.report(self.prey, 'plot/pred_dis/prey')
+      self.report(self.predator, 'plot/pred_dis/predator')
 
       # burningNeighbours = window4total(scalar(self.fire))
       # neighbourBurns = burningNeighbours > 0
@@ -65,7 +65,7 @@ class Fire(DynamicModel):
       # self.report(self.fire, 'fire')
 
 
-nrOfTimeSteps = 181
+nrOfTimeSteps = 250
 myModel = Fire()
 dynamicModel = DynamicFramework(myModel, nrOfTimeSteps)
 dynamicModel.run()

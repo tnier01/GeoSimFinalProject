@@ -49,8 +49,8 @@ class Fire(DynamicModel):
       
       self.predator = hunted_new
       
-      self.report(self.prey, 'plot/prey_2')
-      self.report(self.predator, 'plot/pred_2')
+      self.report(self.prey, 'plot/prey_dis/prey')
+      self.report(self.predator, 'plot/prey_dis/predator')
 
       # burningNeighbours = window4total(scalar(self.fire))
       # neighbourBurns = burningNeighbours > 0
@@ -68,7 +68,7 @@ class Fire(DynamicModel):
       # self.report(self.fire, 'fire')
 
 
-nrOfTimeSteps = 181
+nrOfTimeSteps = 250
 myModel = Fire()
 dynamicModel = DynamicFramework(myModel, nrOfTimeSteps)
 dynamicModel.run()
